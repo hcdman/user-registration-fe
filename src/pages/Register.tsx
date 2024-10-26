@@ -1,18 +1,22 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../styles/register.css";
 import { IRegisterForm } from "../types/user";
+import { ApiRegisterUser } from "../api/apiUser";
+import { toast } from "react-toastify";
 
 const Register = () => {
 
     const [formData, setFormData] = useState<IRegisterForm>({
-        userName: "",
-        email: "",
-        password: ""
+        userName: "abcd",
+        email: "haoi@gmail.com",
+        password: "123abc"
     });
 
-    const [confirmPassword, setConfirmPassword] = useState<string>("");
+    const [confirmPassword, setConfirmPassword] = useState<string>("123abc");
     const [errors, setErrors] = useState<Partial<IRegisterForm & { confirmPassword: string }>>({});
+    const navigate = useNavigate();
 
     const validateForm = () => {
         const formErrors: Partial<IRegisterForm & { confirmPassword: string }> = {};
@@ -43,13 +47,23 @@ const Register = () => {
         return formErrors;
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formErrors = validateForm();
 
         if (Object.keys(formErrors).length === 0) {
-            console.log("Form Submitted!", formData);
-            // Make API call here to register the user
+            try {
+                const response = await ApiRegisterUser(formData);
+                console.log("Registration Successful:", response);
+                toast.success("Register sucessfully !", { position: "top-center", autoClose: 2000, onClose: () => navigate("/login") })
+            } catch (error: any) {
+                if (error.response) {
+                    const message = error.response.data.message;
+                    toast.error(message, { position: "top-center", autoClose: 2000 });
+                } else {
+                    console.error('Unexpected Error:', error.message);
+                }
+            }
         } else {
             setErrors(formErrors);
         }
