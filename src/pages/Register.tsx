@@ -64,6 +64,7 @@ const Register = () => {
                     console.error('Unexpected Error:', error.message);
                 }
             }
+            setErrors(validateForm());
         } else {
             setErrors(formErrors);
         }
