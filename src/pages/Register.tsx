@@ -5,17 +5,19 @@ import "../styles/register.css";
 import { IRegisterForm } from "../types/user";
 import { ApiRegisterUser } from "../api/apiUser";
 import { toast } from "react-toastify";
+import { CircularProgress } from "@mui/material";
 
 const Register = () => {
 
     const [formData, setFormData] = useState<IRegisterForm>({
-        userName: "abcd",
-        email: "haoi@gmail.com",
-        password: "123abc"
+        userName: "",
+        email: "",
+        password: ""
     });
 
-    const [confirmPassword, setConfirmPassword] = useState<string>("123abc");
+    const [confirmPassword, setConfirmPassword] = useState<string>("");
     const [errors, setErrors] = useState<Partial<IRegisterForm & { confirmPassword: string }>>({});
+    const [loading, setLoading] = useState<boolean>(false);
     const navigate = useNavigate();
 
     const validateForm = () => {
@@ -41,7 +43,7 @@ const Register = () => {
         }
 
         if (formData.password !== confirmPassword) {
-            formErrors.confirmPassword = "Passwords do not match";
+            formErrors.confirmPassword = "Password do not match";
         }
 
         return formErrors;
@@ -52,25 +54,28 @@ const Register = () => {
         const formErrors = validateForm();
 
         if (Object.keys(formErrors).length === 0) {
+            setLoading(true);
             try {
                 const response = await ApiRegisterUser(formData);
                 console.log("Registration Successful:", response);
-                toast.success("Register sucessfully !", { position: "top-center", autoClose: 2000, onClose: () => navigate("/login") })
+                toast.success("Register successfully!", { position: "top-center", autoClose: 1000, onClose: () => navigate("/login") });
             } catch (error: any) {
                 if (error.response) {
                     const message = error.response.data.message;
-                    toast.error(message, { position: "top-center", autoClose: 2000 });
+                    toast.error(message, { position: "top-center", autoClose: 1000 });
                 } else {
-                    console.error('Unexpected Error:', error.message);
+                    console.error("Unexpected Error:", error.message);
                 }
+            } finally {
+                setErrors(validateForm());
+                setLoading(false); // Stop loading
+
             }
-            setErrors(validateForm());
         } else {
             setErrors(formErrors);
         }
     };
 
-    // Handle input change for form data
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
@@ -81,7 +86,7 @@ const Register = () => {
             <h3>Register</h3>
             <form className="addUserForm" onSubmit={handleSubmit}>
                 <div className="inputGroup">
-                    <label htmlFor="userName">User Name</label>
+                    <label htmlFor="userName">Username</label>
                     <input
                         type="text"
                         id="userName"
@@ -109,9 +114,9 @@ const Register = () => {
                         value={formData.email}
                         onChange={handleInputChange}
                     />
-                    {
-                        errors.email && (<div className="invalid-feedback">{errors.email}</div>)
-                    }
+                    {errors.email && (
+                        <div className="invalid-feedback">{errors.email}</div>
+                    )}
 
                     <label htmlFor="password">Password</label>
                     <input
@@ -124,9 +129,9 @@ const Register = () => {
                         value={formData.password}
                         onChange={handleInputChange}
                     />
-                    {
-                        errors.password && (<div className="invalid-feedback">{errors.password}</div>)
-                    }
+                    {errors.password && (
+                        <div className="invalid-feedback">{errors.password}</div>
+                    )}
 
                     <label htmlFor="confirmPassword">Confirm Password</label>
                     <input
@@ -139,12 +144,12 @@ const Register = () => {
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                     />
-                    {
-                        errors.confirmPassword && (<div className="invalid-feedback">{errors.confirmPassword}</div>)
-                    }
+                    {errors.confirmPassword && (
+                        <div className="invalid-feedback">{errors.confirmPassword}</div>
+                    )}
 
-                    <button type="submit" className="btn btn-success">
-                        Sign Up
+                    <button type="submit" className="btn btn-success" disabled={loading}>
+                        {loading ? <CircularProgress size={25} style={{ 'color': 'yellow' }} /> : "Sign Up"}
                     </button>
                 </div>
             </form>

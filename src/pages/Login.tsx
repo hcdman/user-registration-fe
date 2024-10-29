@@ -5,12 +5,14 @@ import { useState } from "react";
 import { ILoginForm } from "../types/user";
 import { ApiLoginUser } from "../api/apiUser";
 import { toast } from "react-toastify";
+import { CircularProgress } from "@mui/material";
 const Login = () => {
     const [formData, setFormData] = useState<ILoginForm>({
         userName: "",
         password: ""
     });
     const [errors, setErrors] = useState<Partial<ILoginForm>>({});
+    const [loading, setLoading] = useState<boolean>(false);
     const navigate = useNavigate();
     const validateForm = () => {
         const formErrors: Partial<ILoginForm> = {};
@@ -31,6 +33,7 @@ const Login = () => {
         const formErrors = validateForm();
 
         if (Object.keys(formErrors).length === 0) {
+            setLoading(true);
             try {
                 const response = await ApiLoginUser(formData);
                 console.log("Login Successful:", response);
@@ -38,12 +41,16 @@ const Login = () => {
             } catch (error: any) {
                 if (error.response) {
                     const message = error.response.data.message;
-                    toast.error(message, { position: "top-center", autoClose: 2000 });
+                    toast.error(message, { position: "top-center", autoClose: 1000 });
                 } else {
                     console.error('Unexpected Error:', error.message);
                 }
             }
-            setErrors(validateForm());
+            finally {
+                setErrors(validateForm());
+                setLoading(false); // Stop loading
+
+            }
         } else {
             setErrors(formErrors);
         }
@@ -58,13 +65,13 @@ const Login = () => {
             <h3>Sign in</h3>
             <form className="addUserForm" onSubmit={handleSubmit}>
                 <div className="inputGroup">
-                    <label htmlFor="email">User Name</label>
+                    <label htmlFor="email">Username</label>
                     <input
                         type="text"
                         id="userName"
                         name="userName"
                         autoComplete="off"
-                        placeholder="Enter your name"
+                        placeholder="Enter your username"
                         className={`form-control ${errors.userName ? 'is-invalid' : ''}`}
                         value={formData.userName}
                         onChange={handleInputChange}
@@ -88,8 +95,8 @@ const Login = () => {
                     {
                         errors.password && (<div className="invalid-feedback">{errors.password}</div>)
                     }
-                    <button type="submit" className="btn btn-primary">
-                        Login
+                    <button type="submit" className="btn btn-primary" disabled={loading}>
+                        {loading ? <CircularProgress size={25} style={{ 'color': 'yellow' }} /> : "Login"}
                     </button>
                 </div>
             </form>
