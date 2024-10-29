@@ -3,15 +3,9 @@
     color: white;
     width: 25%;
     margin: 50px auto;
-    /* margin in top and bottom will be 50px  */
-    /* left and right auto  */
     padding: 40px;
     border-radius: 10px;
     box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.065);
-
-    /* horizon offset vertical offset blur offset  */
-    /* opacity of shadow */
-    /* red, green, blue, and (opacity ). */
 }
 
 .addUserForm .inputGroup {

@@ -6,6 +6,7 @@ import { ILoginForm } from "../types/user";
 import { ApiLoginUser } from "../api/apiUser";
 import { toast } from "react-toastify";
 import { CircularProgress } from "@mui/material";
+import { useAuth } from "../context/AuthContext";
 const Login = () => {
     const [formData, setFormData] = useState<ILoginForm>({
         userName: "",
@@ -14,6 +15,7 @@ const Login = () => {
     const [errors, setErrors] = useState<Partial<ILoginForm>>({});
     const [loading, setLoading] = useState<boolean>(false);
     const navigate = useNavigate();
+    const { login } = useAuth();
     const validateForm = () => {
         const formErrors: Partial<ILoginForm> = {};
         if (!formData.userName.trim()) {
@@ -37,7 +39,8 @@ const Login = () => {
             try {
                 const response = await ApiLoginUser(formData);
                 console.log("Login Successful:", response);
-                toast.success("Login sucessfully !", { position: "top-center", autoClose: 1000, onClose: () => navigate("/home") })
+                login(response.data)
+                toast.success("Login sucessfully !", { position: "top-center", autoClose: 800, onClose: () => navigate("/home") })
             } catch (error: any) {
                 if (error.response) {
                     const message = error.response.data.message;
