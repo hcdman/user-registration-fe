@@ -162,7 +162,7 @@ const Register = () => {
                             endAdornment: (
                                 <InputAdornment position="end">
                                     <IconButton onClick={toggleConfirmPasswordVisibility} edge="end">
-                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                                     </IconButton>
                                 </InputAdornment>
                             ),

@@ -5,6 +5,7 @@ const AxiosClient = axios.create({
     headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
+        scheme: 'https'
     }
 });
 
