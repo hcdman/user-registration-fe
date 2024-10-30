@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Link, useNavigate } from "react-router-dom";
-import "../styles/login.css"
 import { useState } from "react";
 import { ILoginForm } from "../types/user";
 import { ApiLoginUser } from "../api/apiUser";
 import { toast } from "react-toastify";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, TextField, Button, Box, InputAdornment, IconButton } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
+import "../styles/login.css"
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 const Login = () => {
     const [formData, setFormData] = useState<ILoginForm>({
         userName: "",
@@ -16,6 +17,7 @@ const Login = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const navigate = useNavigate();
     const { login } = useAuth();
+    const [showPassword, setShowPassword] = useState<boolean>(false);
     const validateForm = () => {
         const formErrors: Partial<ILoginForm> = {};
         if (!formData.userName.trim()) {
@@ -30,6 +32,7 @@ const Login = () => {
         }
         return formErrors;
     };
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formErrors = validateForm();
@@ -39,8 +42,8 @@ const Login = () => {
             try {
                 const response = await ApiLoginUser(formData);
                 console.log("Login Successful:", response);
-                login(response.data)
-                toast.success("Login sucessfully !", { position: "top-center", autoClose: 800, onClose: () => navigate("/home") })
+                login(response.data);
+                toast.success("Login successfully!", { position: "top-center", autoClose: 800, onClose: () => navigate("/home") });
             } catch (error: any) {
                 if (error.response) {
                     const message = error.response.data.message;
@@ -48,11 +51,9 @@ const Login = () => {
                 } else {
                     console.error('Unexpected Error:', error.message);
                 }
-            }
-            finally {
+            } finally {
                 setErrors(validateForm());
                 setLoading(false); // Stop loading
-
             }
         } else {
             setErrors(formErrors);
@@ -63,53 +64,63 @@ const Login = () => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
     return (
-        <div className="addUser">
+        <Box className="addUser" sx={{ maxWidth: 400, mx: 'auto', mt: 4 }}>
             <h3>Sign in</h3>
             <form className="addUserForm" onSubmit={handleSubmit}>
-                <div className="inputGroup">
-                    <label htmlFor="email">Username</label>
-                    <input
-                        type="text"
-                        id="userName"
+                <Box sx={{ mb: 2 }}>
+                    <TextField
+                        label="Username"
+                        variant="outlined"
+                        fullWidth
                         name="userName"
-                        autoComplete="off"
-                        placeholder="Enter your username"
-                        className={`form-control ${errors.userName ? 'is-invalid' : ''}`}
                         value={formData.userName}
                         onChange={handleInputChange}
+                        error={!!errors.userName}
+                        helperText={errors.userName}
                     />
-                    {errors.userName && (
-                        <div className="invalid-feedback">
-                            {errors.userName}
-                        </div>
-                    )}
-                    <label htmlFor="Password">Password</label>
-                    <input
-                        type="password"
-                        id="password"
+                </Box>
+                <Box sx={{ mb: 2 }}>
+                    <TextField
+                        label="Password"
+                        type={showPassword ? 'text' : 'password'}
+                        variant="outlined"
+                        fullWidth
                         name="password"
-                        autoComplete="off"
-                        placeholder="Enter your Password"
-                        className={`form-control ${errors.password ? 'is-invalid' : ''}`}
                         value={formData.password}
                         onChange={handleInputChange}
+                        error={!!errors.password}
+                        helperText={errors.password}
+                        slotProps={{
+                            input: {
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton onClick={togglePasswordVisibility} edge="end">
+                                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                            },
+                        }}
                     />
-                    {
-                        errors.password && (<div className="invalid-feedback">{errors.password}</div>)
-                    }
-                    <button type="submit" className="btn btn-primary" disabled={loading}>
-                        {loading ? <CircularProgress size={25} style={{ 'color': 'yellow' }} /> : "Login"}
-                    </button>
-                </div>
+                </Box>
+                <Button type="submit" variant="contained" color="primary" fullWidth disabled={loading}>
+                    {loading ? <CircularProgress size={25} style={{ color: 'white' }} /> : "Login"}
+                </Button>
             </form>
-            <div className="login">
-                <p>Don't have Account? </p>
-                <Link to="/register" type="submit" className="btn btn-success">
-                    Register
+            <Box sx={{ mt: 2, textAlign: 'center' }}>
+                <p>Don't have an Account?</p>
+                <Link to="/register" style={{ textDecoration: 'none' }}>
+                    <Button variant="contained" color="success">
+                        Register
+                    </Button>
                 </Link>
-            </div>
-        </div>
+            </Box>
+        </Box>
     );
-}
+};
+
 export default Login;

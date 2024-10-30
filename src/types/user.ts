@@ -11,4 +11,6 @@ export interface ILoginForm {
 export interface User {
     userName: string;
     email: string;
+    createdAt: Date;
+
 }
