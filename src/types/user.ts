@@ -9,7 +9,7 @@ export interface ILoginForm {
 }
 
 export interface User {
-    userName: string;
+    username: string;
     email: string;
     createdAt: Date;
 
